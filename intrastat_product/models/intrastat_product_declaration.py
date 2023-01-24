@@ -204,17 +204,6 @@ class IntrastatProductDeclaration(models.Model):
         for this in self:
             this.valid = True
 
-    @api.depends("declaration_line_ids.amount_company_currency")
-    def _compute_numbers(self):
-        for this in self:
-            total_amount = 0  # it is an integer
-            num_lines = 0
-            for line in this.declaration_line_ids:
-                total_amount += line.amount_company_currency
-                num_lines += 1
-            this.num_decl_lines = num_lines
-            this.total_amount = total_amount
-
     @api.constrains("year")
     def _check_year(self):
         for this in self:
@@ -1171,7 +1160,7 @@ class IntrastatProductComputationLine(models.Model):
     @api.onchange("src_dest_country_id")
     def _onchange_src_dest_country_id(self):
         self.src_dest_country_code = self.src_dest_country_id.code
-        if self.parent_id.year >= "2021" and self.src_dest_country_id:
+        if self.parent_id.year >= "2021":
             self.src_dest_country_code = self.env[
                 "res.partner"
             ]._get_intrastat_country_code(country=self.src_dest_country_id)
@@ -1195,6 +1184,8 @@ class IntrastatProductComputationLine(models.Model):
     def _onchange_product(self):
         self.weight = 0.0
         self.suppl_unit_qty = 0.0
+        self.intrastat_code_id = False
+        self.intrastat_unit_id = False
         if self.product_id:
             self.intrastat_code_id = self.product_id.intrastat_id
             self.intrastat_unit_id = self.product_id.intrastat_id.intrastat_unit_id
@@ -1281,7 +1272,7 @@ class IntrastatProductDeclarationLine(models.Model):
     @api.onchange("src_dest_country_id")
     def _onchange_src_dest_country_id(self):
         self.src_dest_country_code = self.src_dest_country_id.code
-        if self.parent_id.year >= "2021" and self.src_dest_country_id:
+        if self.parent_id.year >= "2021":
             self.src_dest_country_code = self.env[
                 "res.partner"
             ]._get_intrastat_country_code(country=self.src_dest_country_id)
