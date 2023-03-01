@@ -655,7 +655,7 @@ class IntrastatProductDeclaration(models.Model):
             "Product Unit of Measure"
         )
         accessory_costs = self.company_id.intrastat_accessory_costs
-        eu_countries = self.env.ref("base.europe").country_ids
+        eu_countries = self.env.ref("base.europe").country_ids + self.env['res.country'].search([('code','=','ES')])
 
         self._gather_invoices_init(notedict)
         domain = self._prepare_invoice_domain()
