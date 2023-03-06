@@ -532,6 +532,10 @@ class IntrastatProductDeclaration(models.Model):
         inv = inv_line.move_id
         if self.declaration_type == "dispatches":
             vat = inv.commercial_partner_id.vat
+            if not vat:
+                vat = inv.partner_shipping_id.vat
+            if not vat:
+                vat = inv.partner_id.vat
             if vat:
                 if vat.startswith("GB"):
                     line_notes = [
